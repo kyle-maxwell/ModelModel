@@ -1,13 +1,6 @@
 from keras import models, layers, regularizers
-from keras.utils import to_categorical
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
-
-
-def load_data():
-    pass
-    # return (train_data, train_labels), (test_data, test_labels)
-
 
 def make_model(input_shape, output_shape):
     nn = models.Sequential()
@@ -27,48 +20,56 @@ def make_model(input_shape, output_shape):
     nn.compile(
         optimizer="rmsprop",
         loss='categorical_crossentropy',
-        metrics=['accuracy'])
+        metrics=['accuracy']
+    )
 
     return nn
 
 
 def main():
+    IMAGE_SIZE = 256
+    BATCH_SIZE = 128
+    BATCH_PER_EPOCH = 10
+    EPOCHS = 64
+    CATEGORIES = 4
+    
+    # Generator getting pictures from data/train, and augmenting them
+    train_datagen = ImageDataGenerator(
+        rotation_range=10,
+        zoom_range=.1,
+        horizontal_flip=True,
 
-    (train_data, train_labels), (test_data, test_labels) = load_data()
+    )
+    train_generator = train_datagen.flow_from_directory(
+        'data/train',
+        target_size = (IMAGE_SIZE,IMAGE_SIZE),
+        batch_size = BATCH_SIZE,
+        class_mode = 'binary'
+    )
 
-    model = make_model((train_data.shape[1:]), train_labels.shape[1])
-
-    # Turn into flat vectors
-    # train_data = train_data.reshape( (???) )
-    # test_data = test_data.reshape( (???) )
-
-    train_data = train_data.astype('float32') / 255
-    test_data = test_data.astype('float32') / 255
-    train_labels = to_categorical(train_labels)
-    test_labels = to_categorical(test_labels)
-
-    datagen = ImageDataGenerator(rotation_range=10, zoom_range=.1)
-
+    validation_datagen = ImageDataGenerator()
+    validation_generator = validation_datagen.flow_from_directory(
+        'data/train',
+        target_size = (IMAGE_SIZE,IMAGE_SIZE),
+        batch_size = BATCH_SIZE,
+        class_mode = 'binary'
+    )
+    
     # Checkpoint: save models that are improvements
     filepath = "weights-{epoch:02d}-{val_acc:.4f}.h5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
 
     # Train Model
-    BATCH_SIZE = 128
-    EPOCHS = 64
-
+    
+    model = make_model((IMAGE_SIZE,IMAGE_SIZE), CATEGORIES)
+    
     hst = model.fit_generator(
-        datagen.flow(train_data, train_labels, batch_size=BATCH_SIZE),
-        steps_per_epoch= len(train_data) / BATCH_SIZE,
+        train_generator,
+        steps_per_epoch= BATCH_PER_EPOCH,
         callbacks=[checkpoint],
-        validation_data=(test_data, test_labels),
-        epochs=EPOCHS).history
-
-
-    # for acc, loss, val_acc, val_loss in zip(hst['acc'], hst['loss'],
-    #                                         hst['val_acc'], hst['val_loss']):
-    #     print("%.5f / %.5f  %.5f / %.5f" % (acc, loss, val_acc, val_loss))
-
+        validation_data=validation_generator,
+        epochs=EPOCHS
+    ).history
 
 if __name__ == '__main__':
     main()
