@@ -4,22 +4,31 @@ from keras.callbacks import ModelCheckpoint
 
 def make_model(input_shape, output_shape):
     nn = models.Sequential()
-    nn.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=input_shape))
+    nn.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
     nn.add(layers.MaxPooling2D((2, 2)))
+
+    nn.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    nn.add(layers.MaxPooling2D((2, 2)))
+
+    nn.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    nn.add(layers.MaxPooling2D((2, 2)))
+
+    nn.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    nn.add(layers.MaxPooling2D((2, 2)))
+
+    nn.add(layers.Conv2D(128, (3, 3), activation='relu'))
 
     nn.add(layers.Dropout(0.5))
-    nn.add(layers.Conv2D(128, (3, 3), activation='relu'))
-    nn.add(layers.MaxPooling2D((2, 2)))
-
-    nn.add(layers.Conv2D(128, (3, 3), activation='relu'))
-
     nn.add(layers.Flatten())
     nn.add(layers.Dense(64, activation='relu'))
-    nn.add(layers.Dense(output_shape, activation='softmax'))
+    nn.add(layers.Dense(output_shape, activation='sigmoid'))
 
+
+    nn.summary()
+    
     nn.compile(
         optimizer="rmsprop",
-        loss='categorical_crossentropy',
+        loss='binary_crossentropy',
         metrics=['accuracy']
     )
 
@@ -27,11 +36,11 @@ def make_model(input_shape, output_shape):
 
 
 def main():
-    IMAGE_SIZE = 256
-    BATCH_SIZE = 128
-    BATCH_PER_EPOCH = 10
+    IMAGE_SIZE = 128
+    BATCH_SIZE = 32
+    BATCH_PER_EPOCH = 20
     EPOCHS = 64
-    CATEGORIES = 4
+    CATEGORIES = 1
     
     # Generator getting pictures from data/train, and augmenting them
     train_datagen = ImageDataGenerator(
@@ -49,7 +58,7 @@ def main():
 
     validation_datagen = ImageDataGenerator()
     validation_generator = validation_datagen.flow_from_directory(
-        'data/train',
+        'data/val',
         target_size = (IMAGE_SIZE,IMAGE_SIZE),
         batch_size = BATCH_SIZE,
         class_mode = 'binary'
@@ -60,8 +69,7 @@ def main():
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
 
     # Train Model
-    
-    model = make_model((IMAGE_SIZE,IMAGE_SIZE), CATEGORIES)
+    model = make_model((IMAGE_SIZE,IMAGE_SIZE,3), CATEGORIES)
     
     hst = model.fit_generator(
         train_generator,
