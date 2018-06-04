@@ -1,14 +1,14 @@
 BLENDER - Generate 2D Image from 3D Model
 ====================
-To run the blender script, have blender locally installed
+To run the blender script, have blender locally installed.
+Blender UI must be able to open (i.e. you can't ssh and run this script)
+Add a folder of background images called "Background/" in the folder where the blender executable is located
 
-Navigate to where the executable is, and do this:
+Navigate to where the blender executable is, and do this:
 
+blender.exe test.blend --python blenderscript.py
 
-blender.exe test.blend -b --python blenderscript.py
-
-
-It will save the images in the folder specified at the top of blenderscript.py (change this to fit your local machine)
+It will save the images in the folder specified in the init variables (change this to fit your local machine)
 
 VIDEO SPLIT - Generate images from video
 ====================
