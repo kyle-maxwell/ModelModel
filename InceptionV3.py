@@ -55,11 +55,8 @@ def main():
 
 
 
-def train_model(model, epochs, batch_per_epoch, batch_size):
+def train_model(model, EPOCHS, BATCH_PER_EPOCH, BATCH_SIZE):
     IMAGE_SIZE = 128
-    BATCH_SIZE = batch_size
-    BATCH_PER_EPOCH = batch_per_epoch
-    EPOCHS = epochs
     CATEGORIES = 2
     
     # Generator getting pictures from data/train, and augmenting them
