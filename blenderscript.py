@@ -1,23 +1,49 @@
 import bpy
 import mathutils
 import json
+import random
 import numpy as np
 from math import radians
 from os.path import join
 import os
 
-# NOTE: Blender cannot run just in the background for this script
-# Run this command: blender.exe test.blend --python blenderscript.py
+class Background:
+    def __init__(self, w, h):
+        self.seed = random.seed()
+        self.width = w
+        self.height = h
+
+    def load_imgs(self):
+        print("Loading background images into blender")
+        folder = "Background/"
+        files = os.listdir(folder)
+        self.images = []
+        for i, f in enumerate(files):
+            image = bpy.data.images.load(os.path.abspath(os.path.join(folder, f)))
+            image.scale(self.width, self.height)
+            self.images.append(np.array(image.pixels).reshape((self.height, self.width, 4)))
+
+    def get_img(self):
+        n = random.randint(0, len(self.images) - 1)
+        return self.images[n]
+
 
 # Get random color to put as background color
 def get_color():
     return np.append(np.random.rand(3), 1)
 
+# Takes two numpy arrays of pixel values and overlays them based on alpha values of obj
+def overlay_imgs(obj, bkgd):
+    for i in range(len(obj)):
+        for j in range(len(obj[0])):
+            if(obj[i][j][3] == 0):
+                obj[i][j] = bkgd[i][j]
+
 # Init variables
 
 # Change this to change how many pictures you take
 # Number of pictures will be NUM_ANGLES^2
-NUM_ANGLES = 2
+NUM_ANGLES = 10
 
 S = bpy.context.scene
 WIDTH = 256
@@ -62,6 +88,10 @@ links.new(rend_lyr.outputs[0], viewer.inputs[0])
 obj = bpy.data.objects["model"]
 cam = bpy.data.objects["Camera"]
 
+# Create background image generator
+bkgd = Background(WIDTH, HEIGHT)
+bkgd.load_imgs()
+
 rot_angle  = 360 / NUM_ANGLES
 vert_angle = 180 / NUM_ANGLES
 
@@ -82,17 +112,17 @@ for i in range(NUM_ANGLES):
         bpy.ops.render.render()
         pixels = bpy.data.images['Viewer Node'].pixels
 
-        # Do numpy stuff to copy values of bkgd image into places where alpha is full
-        # Need rendered image and bkgd image to be same size for this to work
-        # For now, just make the background a solid random color
+        # Copy pixel values of bkgd image into obj image using alpha values
         pixel_arr = np.array(pixels[:])
-        pixel_arr = pixel_arr.reshape((WIDTH * HEIGHT, 4))
-        pixel_arr[pixel_arr[...,3]==0] = get_color()
+        pixel_arr = pixel_arr.reshape((HEIGHT, WIDTH, 4))
+        overlay_imgs(pixel_arr, bkgd.get_img())
 
+        # Save image
         image = bpy.data.images.new(file_name, width=WIDTH, height=HEIGHT)
         image.pixels = pixel_arr.flatten()
         file_name += S.render.file_extension
         image.filepath_raw = join(renderFolder, file_name)
         image.file_format = 'PNG'
         image.save()
+        bpy.data.images.remove(image)
         count += 1
