@@ -69,11 +69,12 @@ def main():
     )
     
     # Checkpoint: save models that are improvements
-    filepath = "weights-{epoch:02d}-{val_acc:.4f}.h5"
+    filepath = "weights/weights-{epoch:02d}-{val_acc:.4f}.h5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
 
     # Train Model
-    model = make_model((IMAGE_SIZE,IMAGE_SIZE,3), CATEGORIES)
+    input_shape = (IMAGE_SIZE, IMAGE_SIZE, 3) # 3 channels? or 4? alpha levels?
+    model = make_model(input_shape, CATEGORIES)
     
     hst = model.fit_generator(
         train_generator,
