@@ -20,3 +20,12 @@ Run program as
 python VideoSplit.py {video_filename} ... {video_filename}
 ```
 This will generate a folder for images of the object called "objectname" and a folder called empty_pics.
+
+MODEL PREDICT - Predicts images from folders
+====================
+Create directories as you wish in your local filesystem.
+Run program as
+```python
+python ModelPredict {weight_selected} {directory_name/}
+```
+This will display the image it predicted on, titled with the Object name (also prints to terminal)
