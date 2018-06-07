@@ -38,10 +38,22 @@ def overlay_img(obj, bkgd, name):
 
 
 def overlay_folder(w, h, im_folder, bkgd):
+    num_overlays = 6
     im_files = os.listdir(abspath(im_folder))
+    #Make 5 overlays for each image of the object
+    count = 0
+    for j in range(0,num_overlays-1):
+        for i, f in enumerate(im_files):
+            print("Image {}{}".format(j,i))
+            name = abspath(join(im_folder,f))
+            im = cv2.imread(name, cv2.IMREAD_UNCHANGED) # To get alpha values
+            name = abspath(join(im_folder,str(count)+f))
+            overlay_img(im, bkgd.get_img(), name)
+            count += 1
+    #One last time to overwrite original... Now we have 6 each
     for i, f in enumerate(im_files):
-        print("Image {}".format(i))
-        name = abspath(join(im_folder, f))
+        print("Image {}{}".format(j,i))
+        name = abspath(join(im_folder,f))
         im = cv2.imread(name, cv2.IMREAD_UNCHANGED) # To get alpha values
         overlay_img(im, bkgd.get_img(), name)
 
