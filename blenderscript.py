@@ -28,7 +28,7 @@ def main(model_name):
 
     # Change this to change how many pictures you take
     # Number of pictures will be NUM_ANGLES^2
-    NUM_ANGLES = 6
+    NUM_ANGLES = 10
 
     # Get scene and set render resolution
     S = bpy.context.scene
@@ -40,15 +40,10 @@ def main(model_name):
 
     # Parent data folder
     render_folder = abspath(join("data", model_name))
-    if not exists(join(render_folder, 'train')):
-        os.makedirs(join(render_folder, 'train'))
-    if not exists(join(render_folder, 'val')):
-        os.mkdir(join(render_folder, 'val'))
+    if not exists(render_folder):
+        os.makedirs(render_folder)
 
-    # Unlink any existing images
-    # So if you want to save anything, save it somewhere else
-    unlink_files(abspath(join(render_folder, 'train')))
-    unlink_files(abspath(join(render_folder, 'val')))
+    unlink_files(abspath(render_folder))
 
     # Create folder to render to
     for the_file in os.listdir(render_folder):
@@ -84,12 +79,8 @@ def main(model_name):
             print('Processing image {} with rot {} and vert {}'.format(count, rot, vert))
 
             file_name = "angle_{}_cam_{}.{}".format(rot, vert, S.render.file_extension)
-            if(random.random() < 0.75):
-                file_path = join(render_folder, 'train')
-            else:
-                file_path = join(render_folder, 'val')
 
-            bpy.context.scene.render.filepath = join(file_path, file_name)
+            bpy.context.scene.render.filepath = join(render_folder, file_name)
             bpy.ops.render.render(write_still=True)
             count += 1
 
