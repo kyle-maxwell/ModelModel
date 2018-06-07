@@ -36,8 +36,8 @@ def main():
     model = load_model(sys.argv[1])
     res = model.predict_generator(val_gen, verbose=1)
     
-    for (filename, prediction) in zip(val_gen.filenames,res):
-        image = cv2.imread(sys.argv[2] +filename, cv2.IMREAD_COLOR)
+    for (filename, prediction) in zip(val_gen.filenames, res):
+        image = cv2.imread(sys.argv[2] + filename, cv2.IMREAD_COLOR)
         rs = cv2.resize(image, None, fx=.5, fy=.5, interpolation=cv2.INTER_CUBIC)
         if(np.around(prediction[0]) == 1):
             cv2.imshow('BOTTLE',rs)

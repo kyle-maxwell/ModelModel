@@ -6,9 +6,26 @@ Add a folder of background images called "Background/" in the folder where the b
 
 Navigate to where the blender executable is, and do this:
 
-blender.exe test.blend --python blenderscript.py
+blender.exe -b test.blend --python blenderscript.py
 
 It will save the images in the folder specified in the init variables (change this to fit your local machine)
+
+OVERLAY - Overlay object images with background
+====================
+If you ran the blender script, the object images should be in the right structure
+Copy the data folder from your blender folder to where you want to train your model
+
+Run this command:
+
+python overlay.py {WIDTH} {HEIGHT} {BKGD_FOLDER} [data/{OBJ}...]
+
+Where WIDTH and HEIGHT are dimensions of the object images
+BKGD_FOLDER is where your background images are located
+[data/{OBJ}...] are the folders where the object images are located
+
+eg) python overlay.py 256 256 Background data/bottle data/lacroix data/shoe
+
+This script will overwrite every train and val image in the object data folders
 
 VIDEO SPLIT - Generate images from video
 ====================

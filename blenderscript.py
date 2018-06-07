@@ -3,126 +3,94 @@ import mathutils
 import json
 import random
 import numpy as np
+from sys import argv
 from math import radians
-from os.path import join
+from os.path import join, abspath, exists
 import os
 
-class Background:
-    def __init__(self, w, h):
-        self.seed = random.seed()
-        self.width = w
-        self.height = h
-
-    def load_imgs(self):
-        print("Loading background images into blender")
-        folder = "Background/"
-        files = os.listdir(folder)
-        self.images = []
-        for i, f in enumerate(files):
-            image = bpy.data.images.load(os.path.abspath(os.path.join(folder, f)))
-            image.scale(self.width, self.height)
-            self.images.append(np.array(image.pixels).reshape((self.height, self.width, 4)))
-
-    def get_img(self):
-        n = random.randint(0, len(self.images) - 1)
-        return self.images[n]
-
-
 # Get random color to put as background color
+# Use to create a baseline background
 def get_color():
     return np.append(np.random.rand(3), 1)
 
-# Takes two numpy arrays of pixel values and overlays them based on alpha values of obj
-def overlay_imgs(obj, bkgd):
-    for i in range(len(obj)):
-        for j in range(len(obj[0])):
-            if(obj[i][j][3] == 0):
-                obj[i][j] = bkgd[i][j]
+def unlink_files(folder):
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
+            exit()
 
-# Init variables
+def main(model_name):
+    # Init variables
 
-# Change this to change how many pictures you take
-# Number of pictures will be NUM_ANGLES^2
-NUM_ANGLES = 10
+    # Change this to change how many pictures you take
+    # Number of pictures will be NUM_ANGLES^2
+    NUM_ANGLES = 6
 
-S = bpy.context.scene
-WIDTH = 256
-HEIGHT = 256
-S.render.resolution_x = WIDTH
-S.render.resolution_y = HEIGHT
-S.render.resolution_percentage = 100
-renderFolder = "D:/MyRenderFolder/"
+    # Get scene and set render resolution
+    S = bpy.context.scene
+    WIDTH = 256
+    HEIGHT = 256
+    S.render.resolution_x = WIDTH
+    S.render.resolution_y = HEIGHT
+    S.render.resolution_percentage = 100
 
-# Create folder to render to
-for the_file in os.listdir(renderFolder):
-    file_path = os.path.join(renderFolder, the_file)
-    try:
-        if os.path.isfile(file_path):
-            os.unlink(file_path)
-    except Exception as e:
-        print(e)
-        exit()
+    # Parent data folder
+    render_folder = abspath(join("data", model_name))
+    if not exists(join(render_folder, 'train')):
+        os.makedirs(join(render_folder, 'train'))
+    if not exists(join(render_folder, 'val')):
+        os.mkdir(join(render_folder, 'val'))
 
-# Create nodes to get render info
-bpy.context.scene.use_nodes = True
-tree = bpy.context.scene.node_tree
-links = tree.links
+    # Unlink any existing images
+    # So if you want to save anything, save it somewhere else
+    unlink_files(abspath(join(render_folder, 'train')))
+    unlink_files(abspath(join(render_folder, 'val')))
 
-# Clear all existing nodes, don't care about them
-for n in tree.nodes:
-    tree.nodes.remove(n)
+    # Create folder to render to
+    for the_file in os.listdir(render_folder):
+        file_path = os.path.join(render_folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
+            exit()
 
-# Create input render layer and set a location (only for visual Blender, might be able to remove)
-rend_lyr = tree.nodes.new('CompositorNodeRLayers')
-rend_lyr.location = 185, 285
+    random.seed()
+   
+    # Get object and camera (camera is unnecessary as of now)
+    obj = bpy.data.objects["model"]
+    # cam = bpy.data.objects["Camera"]
 
-# Create output node (the Viewer node that lets us get pixel values)
-viewer = tree.nodes.new('CompositorNodeViewer')
-viewer.location = 750, 210
-viewer.use_alpha = True # Guy said false here, but we need the alpha to do proper blending
+    rot_angle  = 360 / NUM_ANGLES
+    vert_angle = 180 / NUM_ANGLES
 
-# Link the two nodes
-links.new(rend_lyr.outputs[0], viewer.inputs[0])
+    count = 0
 
-# Get object and camera (camera is unnecessary as of now)
-obj = bpy.data.objects["model"]
-cam = bpy.data.objects["Camera"]
+    # Rotation around vertical axis (horizontal rotaton)
+    for i in range(NUM_ANGLES):
+        # Rotation around horizontal axis (vertical rotation)
+        for j in range(int(-NUM_ANGLES/2)+1, int(NUM_ANGLES/2)+1):
+            vert = j * vert_angle
+            obj.rotation_euler.y = radians( vert )
 
-# Create background image generator
-bkgd = Background(WIDTH, HEIGHT)
-bkgd.load_imgs()
+            rot = i * rot_angle
+            obj.rotation_euler.z = radians( rot )
 
-rot_angle  = 360 / NUM_ANGLES
-vert_angle = 180 / NUM_ANGLES
+            print('Processing image {} with rot {} and vert {}'.format(count, rot, vert))
 
-count = 0
+            file_name = "angle_{}_cam_{}.{}".format(rot, vert, S.render.file_extension)
+            if(random.random() < 0.75):
+                file_path = join(render_folder, 'train')
+            else:
+                file_path = join(render_folder, 'val')
 
-# Rotation around vertical axis (horizontal rotaton)
-for i in range(NUM_ANGLES):
-    # Rotation around horizontal axis (vertical rotation)
-    for j in range(int(-NUM_ANGLES/2)+1, int(NUM_ANGLES/2)+1):
-        vert = j * vert_angle
-        obj.rotation_euler.y = radians( vert )
+            bpy.context.scene.render.filepath = join(file_path, file_name)
+            bpy.ops.render.render(write_still=True)
+            count += 1
 
-        rot = i * rot_angle
-        obj.rotation_euler.z = radians( rot )
-
-        print('Processing image {} with rot {} and vert {}'.format(count, rot, vert))
-        file_name = "angle_{a}_cam_{f}".format( a = rot, f = vert)
-        bpy.ops.render.render()
-        pixels = bpy.data.images['Viewer Node'].pixels
-
-        # Copy pixel values of bkgd image into obj image using alpha values
-        pixel_arr = np.array(pixels[:])
-        pixel_arr = pixel_arr.reshape((HEIGHT, WIDTH, 4))
-        overlay_imgs(pixel_arr, bkgd.get_img())
-
-        # Save image
-        image = bpy.data.images.new(file_name, width=WIDTH, height=HEIGHT)
-        image.pixels = pixel_arr.flatten()
-        file_name += S.render.file_extension
-        image.filepath_raw = join(renderFolder, file_name)
-        image.file_format = 'PNG'
-        image.save()
-        bpy.data.images.remove(image)
-        count += 1
+main(argv[2][:-6])
