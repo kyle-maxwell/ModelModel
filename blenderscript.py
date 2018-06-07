@@ -13,6 +13,15 @@ import os
 def get_color():
     return np.append(np.random.rand(3), 1)
 
+def unlink_files(folder):
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
+            exit()
 
 def main(model_name):
     # Init variables
@@ -35,6 +44,11 @@ def main(model_name):
         os.makedirs(join(render_folder, 'train'))
     if not exists(join(render_folder, 'val')):
         os.mkdir(join(render_folder, 'val'))
+
+    # Unlink any existing images
+    # So if you want to save anything, save it somewhere else
+    unlink_files(abspath(join(render_folder, 'train')))
+    unlink_files(abspath(join(render_folder, 'val')))
 
     # Create folder to render to
     for the_file in os.listdir(render_folder):
