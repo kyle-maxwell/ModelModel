@@ -1,31 +1,30 @@
 BLENDER - Generate 2D Image from 3D Model
 ====================
 To run the blender script, have blender locally installed.
-Blender UI must be able to open (i.e. you can't ssh and run this script)
-Add a folder of background images called "Background/" in the folder where the blender executable is located
+Blender UI must be able to open (i.e. you can't ssh and run this script) (DOES IT ACTUALLY??)
 
-Navigate to where the blender executable is, and do this:
+blender.exe -b models/test.blend --python blenderscript.py
 
-blender.exe -b test.blend --python blenderscript.py
+models/test.blend is the 3d Model you want to generate images of.
 
-It will save the images in the folder specified in the init variables (change this to fit your local machine)
+You can specifiy the number of angles to capture images from by changing NUM_ANGLES.
+It will generate NUM_ANGLES^2 Model Images and save them into data/models/test/
+
 
 OVERLAY - Overlay object images with background
 ====================
-If you ran the blender script, the object images should be in the right structure
-Copy the data folder from your blender folder to where you want to train your model
+If you ran the blender script as stated above, the object images should be in the right structure
 
 Run this command:
 
-python overlay.py {WIDTH} {HEIGHT} {BKGD_FOLDER} [data/{OBJ}...]
+python overlay.py {WIDTH} {HEIGHT} {BKGD_FOLDER} data/models/
 
 Where WIDTH and HEIGHT are dimensions of the object images
 BKGD_FOLDER is where your background images are located
-[data/{OBJ}...] are the folders where the object images are located
+data/models/ contains the folders in which all of the Model Images are saved
 
-eg) python overlay.py 256 256 Background data/bottle data/lacroix data/shoe
-
-This script will overwrite every train and val image in the object data folders
+You can specify the amount of overlays per Model Image by changing 'num_overlays' in overlay.py
+This script will overwrite every Model Image in the object data folders.
 
 VIDEO SPLIT - Generate images from video
 ====================
