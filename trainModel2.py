@@ -9,60 +9,81 @@ def make_model(input_shape, output_shape):
 
     nn.add(layers.Conv2D(32,
         (3, 3),
-        activation='relu',
+        activation=layer.LeakyReLU(0.005),
         kernel_regularizer=regularizers.l2(.01),
-        input_shape=input_shape
+        input_shape=input_shape,
+        kernel_initializer="he_normal"
     ))
-    nn.add(layers.BatchNormalization())
-    nn.add(layers.MaxPooling2D())
+
+    #nn.add(layers.BatchNormalization())
+    #nn.add(layers.MaxPooling2D())
 
     # second layer
 
-    nn.add(layers.Conv2D(64,
+    nn.add(layers.Conv2D(32,
         (3, 3),
-        activation='relu',
-        kernel_regularizer=regularizers.l2(.01)
+        activation=layers.LeakyReLU(alpha=0.001),
+        kernel_regularizer=regularizers.l2(.01),
+        kernel_initializer="he_normal"
     ))
     nn.add(layers.BatchNormalization())
     nn.add(layers.MaxPooling2D())
 
     # third layer
 
-    nn.add(layers.Conv2D(128,
+    nn.add(layers.Conv2D(64,
         (3, 3),
-        activation='relu',
-        kernel_regularizer=regularizers.l2(.01)
+        activation=layers.LeakyReLU(alpha=0.001),
+        kernel_regularizer=regularizers.l2(.01),
+        kernel_initializer="he_normal"
+    ))
+
+    # fourth 
+
+    nn.add(layers.Conv2D(64,
+        (3, 3),
+        activation=layers.LeakyReLU(alpha=0.001),
+        kernel_regularizer=regularizers.l2(.01),
+        kernel_initializer="he_normal"
     ))
     nn.add(layers.BatchNormalization()) 
     nn.add(layers.MaxPooling2D())
 
-# 
+    # fifth layer
 
     nn.add(layers.Conv2D(64,
         (1, 1),
-        activation='relu',
-        kernel_regularizer=regularizers.l2(.01)
-    ))
-    nn.add(layers.Conv2D(32,
-        (1,1),
-        activation='relu',
-        kernel_regularizer=regularizers.l2(.01)
-    ))
-    nn.add(layers.BatchNormalization())
- 
-    nn.add(layers.Flatten())
-    nn.add(layers.Dense(32,
-        activation='relu',
-        kernel_regularizer=regularizers.l2(.01)
+        activation=layers.LeakyReLU(alpha=0.001),
+        kernel_regularizer=regularizers.l2(.01),
+        kernel_initializer="he_normal"
     ))
 
-    nn.add(layers.LeakyReLU(alpha=0.01))
+    # sixth layer
+
+    nn.add(layers.Conv2D(32,
+        (1,1),
+        activation=layers.LeakyReLU(alpha=0.001),
+        kernel_regularizer=regularizers.l2(.01),
+        kernel_initializer="he_normal"
+    ))
+
+    nn.add(layers.BatchNormalization())
+    nn.add(layers.Flatten())
+
+    # seventh layer
+
+    nn.add(layers.Dense(32,
+        activation=layers.LeakyReLU(alpha=0.001),
+        kernel_regularizer=regularizers.l2(.01),
+        kernel_initializer="he_normal"
+    ))
+
     nn.add(layers.Dense(output_shape, activation='softmax'))
 
     nn.summary()
-    
+
     nn.compile(
-        optimizer="rmsprop",
+        optimizer=optimizer=Adam(lr=0.0001, momentum=0.9),
         loss='categorical_crossentropy',
         metrics=['accuracy']
     )
