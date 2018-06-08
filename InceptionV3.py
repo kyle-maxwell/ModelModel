@@ -45,9 +45,9 @@ def main():
 
     # we need to recompile the model for these modifications to take effect
     # we use SGD with a low learning rate
-    from keras.optimizers import SGD
-    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
-
+    from keras.optimizers import SGD, Adam, RMSprop
+    #model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
+    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss = "categorical_crossentropy", metrics=["accuracy"])
     # we train our model again (this time fine-tuning the top 2 inception blocks
     # alongside the top Dense layers
     # model.fit_generator(...)
@@ -65,6 +65,9 @@ def train_model(model, EPOCHS, BATCH_PER_EPOCH, BATCH_SIZE):
         rotation_range=10,
         zoom_range=.1,
         horizontal_flip=True,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
         rescale=1/255
     )
     train_generator = train_datagen.flow_from_directory(
