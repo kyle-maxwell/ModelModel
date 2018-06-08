@@ -4,6 +4,7 @@ from keras.callbacks import ModelCheckpoint
 
 def make_model(input_shape, output_shape):
     nn = models.Sequential()
+
     nn.add(layers.Conv2D(32,
         (3, 3),
         activation='relu',
@@ -12,12 +13,16 @@ def make_model(input_shape, output_shape):
     ))
     nn.add(layers.BatchNormalization())
     nn.add(layers.MaxPooling2D())
+
+    # second layer
+
     nn.add(layers.Conv2D(64,
         (3, 3),
         activation='relu',
         kernel_regularizer=regularizers.l2(.01)
     ))
     nn.add(layers.BatchNormalization())
+
     nn.add(layers.Conv2D(128,
         (3, 3),
         activation='relu',
@@ -66,17 +71,16 @@ def main():
     BATCH_SIZE = 64
     BATCH_PER_EPOCH = 30
     EPOCHS = 40
-    CATEGORIES = 3
+    CATEGORIES = 4
     
     # Generator getting pictures from data/train, and augmenting them
     train_datagen = ImageDataGenerator(
-        rotation_range=10,
-        width_shift_range=50, #To make sure that the object isn't always centered
-        height_shift_range=50,
         zoom_range=.1,
         horizontal_flip=True,
         fill_mode='wrap',
         rescale=1/255
+        width_shift_range=0.2,
+        height_shift_range=0.2,
     )
     train_generator = train_datagen.flow_from_directory(
         'data/models',
@@ -101,6 +105,7 @@ def main():
 
     # Train Model
     input_shape = (IMAGE_SIZE, IMAGE_SIZE, 3) # 3 channels? or 4? alpha levels?
+    # it is three for R G B ?
     model = make_model(input_shape, CATEGORIES)
     
     hst = model.fit_generator(

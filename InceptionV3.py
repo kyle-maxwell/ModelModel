@@ -16,7 +16,7 @@ def main():
     # add a global spatial average pooling layer
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(512, activation='relu')(x) # Was 1024 when had 200 classes
+    x = Dense(32, activation='relu')(x) # Was 1024 when had 200 classes, 512 also
 
 
     CATEGORIES = 2
@@ -33,7 +33,7 @@ def main():
     # train the model on the new data for a few epochs
     # model.fit_generator(...)
     # train_model(model, epochs, batch_per_epoch, batch_size)
-    train_model(model, 2, 30, 32)
+    train_model(model, 2, 30, 64)
 
     # freeze the bottom N layers and train the remaining top layers.
     # we chose to train the top 2 inception blocks, i.e. we will freeze
@@ -45,14 +45,14 @@ def main():
 
     # we need to recompile the model for these modifications to take effect
     # we use SGD with a low learning rate
-    from keras.optimizers import SGD
-    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
-
+    from keras.optimizers import SGD, Adam, RMSprop
+    #model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
+    model.compile(optimizer=Adam(lr=0.0001, momentum=0.9), loss = "categorical_crossentropy", metrics=["accuracy"])
     # we train our model again (this time fine-tuning the top 2 inception blocks
     # alongside the top Dense layers
     # model.fit_generator(...)
     # train_model(model, epochs, batch_per_epoch, batch_size)
-    train_model(model, 20, 30, 32)
+    train_model(model, 20, 30, 64)
 
 
 
@@ -65,6 +65,9 @@ def train_model(model, EPOCHS, BATCH_PER_EPOCH, BATCH_SIZE):
         rotation_range=10,
         zoom_range=.1,
         horizontal_flip=True,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
         rescale=1/255
     )
     train_generator = train_datagen.flow_from_directory(
