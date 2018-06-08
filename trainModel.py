@@ -5,8 +5,6 @@ from keras.callbacks import ModelCheckpoint
 def make_model(input_shape, output_shape):
     nn = models.Sequential()
 
-    # first layer
-
     nn.add(layers.Conv2D(32,
         (3, 3),
         activation='relu',
@@ -24,9 +22,6 @@ def make_model(input_shape, output_shape):
         kernel_regularizer=regularizers.l2(.01)
     ))
     nn.add(layers.BatchNormalization())
-    nn.add(layers.MaxPooling2D())
-
-    # third layer
 
     nn.add(layers.Conv2D(128,
         (3, 3),
@@ -34,17 +29,20 @@ def make_model(input_shape, output_shape):
         kernel_regularizer=regularizers.l2(.01)
     ))
     nn.add(layers.BatchNormalization()) 
-    nn.add(layers.MaxPooling2D())
-
-# 
-
     nn.add(layers.Conv2D(64,
         (1, 1),
         activation='relu',
-        kernel_regularizer=regularizers.l2(.01)
     ))
     nn.add(layers.Conv2D(32,
         (1,1),
+        activation='relu',
+    ))
+    nn.add(layers.Conv2D(32,
+        (3,3),
+        activation='relu',
+    ))
+    nn.add(layers.Conv2D(32,
+        (3,3),
         activation='relu',
         kernel_regularizer=regularizers.l2(.01)
     ))
@@ -70,24 +68,23 @@ def make_model(input_shape, output_shape):
 
 def main():
     IMAGE_SIZE = 128
-    BATCH_SIZE = 32
+    BATCH_SIZE = 64
     BATCH_PER_EPOCH = 30
     EPOCHS = 40
     CATEGORIES = 4
     
     # Generator getting pictures from data/train, and augmenting them
     train_datagen = ImageDataGenerator(
-        rotation_range=10,
         zoom_range=.1,
         horizontal_flip=True,
-        rescale=1/255,
+        fill_mode='wrap',
+        rescale=1/255
         width_shift_range=0.2,
         height_shift_range=0.2,
-        shear_range=0.2
     )
     train_generator = train_datagen.flow_from_directory(
         'data/models',
-        target_size = (IMAGE_SIZE,IMAGE_SIZE),
+        target_size = (IMAGE_SIZE,IMAGE_SIZE), #should already be this size, but we left it in to be safe
         batch_size = BATCH_SIZE,
         class_mode = 'categorical'
     )
