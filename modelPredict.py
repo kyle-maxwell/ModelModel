@@ -11,42 +11,35 @@ import sys
 # Displays Validation Data with Title of Window as Prediction Value
 
 def get_generator(dir_name):
-    IMAGE_SIZE = 256 
+    IMAGE_SIZE = 128
     BATCH_SIZE = 1
-    BATCH_PER_EPOCH = 30
-    EPOCHS = 40
-    CATEGORIES = 2 
     print(dir_name)
-    # Generator getting pictures from data/train, and augmenting them
-    train_datagen = ImageDataGenerator(
+    
+    val_datagen = ImageDataGenerator(
         rescale=1/255
     )   
-    train_generator = train_datagen.flow_from_directory(
+    val_generator = val_datagen.flow_from_directory(
         dir_name,
         shuffle = False,
         target_size = (IMAGE_SIZE,IMAGE_SIZE),
         batch_size = BATCH_SIZE,
         class_mode = 'categorical'
     )
-    return train_generator
+    return val_generator
 
+#python modelPredict.py model.h5 picture_dir
 def main():
     val_gen = get_generator(sys.argv[2])
-    
     model = load_model(sys.argv[1])
     res = model.predict_generator(val_gen, verbose=1)
-    
+    print(val_gen.class_indices)
     for (filename, prediction) in zip(val_gen.filenames, res):
         image = cv2.imread(sys.argv[2] + filename, cv2.IMREAD_COLOR)
-        rs = cv2.resize(image, None, fx=.5, fy=.5, interpolation=cv2.INTER_CUBIC)
-        if(np.around(prediction[0]) == 1):
-            cv2.imshow('BOTTLE',rs)
-            print('Image ' + sys.argv[2] + filename + " is A BOTTLE.")
-        else:
-            cv2.imshow('NOT BOTTLE', rs)
-            print('Image ' + sys.argv[2] + filename + " is NOT A BOTTLE.")
+        rs = cv2.resize(image, (500,500), interpolation=cv2.INTER_CUBIC)
+        cv2.imshow('Image',rs)
+        print(list(val_gen.class_indices)[np.argmax(prediction)])
+        print(np.around(prediction, decimals=3))
         cv2.waitKey(3000) # Image will show for 3s, or when you press a key
-
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

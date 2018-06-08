@@ -4,23 +4,42 @@ from keras.callbacks import ModelCheckpoint
 
 def make_model(input_shape, output_shape):
     nn = models.Sequential()
-    nn.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=input_shape))
-    nn.add(layers.MaxPooling2D((2, 2)))
-
-    nn.add(layers.Conv2D(32, (3, 3), activation='relu'))
-    nn.add(layers.Conv2D(16, (1, 1), activation='relu'))
-
-    nn.add(layers.Conv2D(32, (3, 3), activation='relu'))
-    nn.add(layers.Conv2D(16, (1, 1), activation='relu'))
-
-    nn.add(layers.Conv2D(16,
+    nn.add(layers.Conv2D(32,
+        (3, 3),
+        activation='relu',
+        kernel_regularizer=regularizers.l2(.01),
+        input_shape=input_shape
+    ))
+    nn.add(layers.BatchNormalization())
+    nn.add(layers.MaxPooling2D())
+    nn.add(layers.Conv2D(64,
         (3, 3),
         activation='relu',
         kernel_regularizer=regularizers.l2(.01)
     ))
-
+    nn.add(layers.BatchNormalization())
+    nn.add(layers.MaxPooling2D())
+    nn.add(layers.Conv2D(128,
+        (3, 3),
+        activation='relu',
+        kernel_regularizer=regularizers.l2(.01)
+    ))
+    nn.add(layers.BatchNormalization()) 
+    nn.add(layers.MaxPooling2D())
+    nn.add(layers.Conv2D(64,
+        (1, 1),
+        activation='relu',
+        kernel_regularizer=regularizers.l2(.01)
+    ))
+    nn.add(layers.Conv2D(32,
+        (1,1),
+        activation='relu',
+        kernel_regularizer=regularizers.l2(.01)
+    ))
+    nn.add(layers.BatchNormalization())
+ 
     nn.add(layers.Flatten())
-    nn.add(layers.Dense(16,
+    nn.add(layers.Dense(32,
         activation='relu',
         kernel_regularizer=regularizers.l2(.01)
     ))
