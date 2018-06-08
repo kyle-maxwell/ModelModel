@@ -16,7 +16,7 @@ def main():
     # add a global spatial average pooling layer
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(512, activation='relu')(x) # Was 1024 when had 200 classes
+    x = Dense(32, activation='relu')(x) # Was 1024 when had 200 classes, 512 also
 
 
     CATEGORIES = 2
@@ -33,7 +33,7 @@ def main():
     # train the model on the new data for a few epochs
     # model.fit_generator(...)
     # train_model(model, epochs, batch_per_epoch, batch_size)
-    train_model(model, 2, 30, 32)
+    train_model(model, 2, 30, 64)
 
     # freeze the bottom N layers and train the remaining top layers.
     # we chose to train the top 2 inception blocks, i.e. we will freeze
@@ -52,7 +52,7 @@ def main():
     # alongside the top Dense layers
     # model.fit_generator(...)
     # train_model(model, epochs, batch_per_epoch, batch_size)
-    train_model(model, 20, 30, 32)
+    train_model(model, 20, 30, 64)
 
 
 
