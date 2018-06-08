@@ -47,7 +47,7 @@ def main():
     # we use SGD with a low learning rate
     from keras.optimizers import SGD, Adam, RMSprop
     #model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
-    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss = "categorical_crossentropy", metrics=["accuracy"])
+    model.compile(optimizer=Adam(lr=0.0001, momentum=0.9), loss = "categorical_crossentropy", metrics=["accuracy"])
     # we train our model again (this time fine-tuning the top 2 inception blocks
     # alongside the top Dense layers
     # model.fit_generator(...)
