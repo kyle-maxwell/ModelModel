@@ -1,7 +1,8 @@
 BLENDER - Generate 2D Image from 3D Model
 ====================
 To run the blender script, have blender locally installed.
-Blender UI must be able to open (i.e. you can't ssh and run this script) (DOES IT ACTUALLY??)
+
+Run this command:
 
 blender.exe -b models/test.blend --python blenderscript.py
 
@@ -17,11 +18,13 @@ If you ran the blender script as stated above, the object images should be in th
 
 Run this command:
 
-python overlay.py {WIDTH} {HEIGHT} {BKGD_FOLDER} data/models/
+python overlay.py {blender_executable} {BKGD_FOLDER} {MODEL_FOLDER}
 
-Where WIDTH and HEIGHT are dimensions of the object images
+Where blender_executable is the path to your blender executable
 BKGD_FOLDER is where your background images are located
-data/models/ contains the folders in which all of the Model Images are saved
+MODEL_FOLDER contains the .blend files of the models
+
+eg) python overlay.py blender.exe Background/ data/
 
 You can specify the amount of overlays per Model Image by changing 'num_overlays' in overlay.py
 This script will overwrite every Model Image in the object data folders.

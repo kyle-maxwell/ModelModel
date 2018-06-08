@@ -23,12 +23,12 @@ def unlink_files(folder):
             print(e)
             exit()
 
-def main(model_name):
+def main(model_path):
     # Init variables
 
     # Change this to change how many pictures you take
     # Number of pictures will be NUM_ANGLES^2
-    NUM_ANGLES = 10
+    NUM_ANGLES = 2
 
     # Get scene and set render resolution
     S = bpy.context.scene
@@ -39,13 +39,14 @@ def main(model_name):
     S.render.resolution_percentage = 100
 
     # Parent data folder
+    model_name = os.path.splitext(os.path.basename(model_path))[0]
     render_folder = abspath(join("data", model_name))
     if not exists(render_folder):
         os.makedirs(render_folder)
 
     unlink_files(abspath(render_folder))
 
-    # Create folder to render to
+    # Delete all previous files in render folder
     for the_file in os.listdir(render_folder):
         file_path = os.path.join(render_folder, the_file)
         try:
@@ -84,4 +85,4 @@ def main(model_name):
             bpy.ops.render.render(write_still=True)
             count += 1
 
-main(argv[2][:-6])
+main(argv[2])
