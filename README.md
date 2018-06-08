@@ -4,6 +4,7 @@ To run the blender script, have blender locally installed.
 
 Run this command:
 
+
 blender.exe -b models/test.blend --python blenderscript.py
 
 models/test.blend is the 3d Model you want to generate images of.
@@ -14,20 +15,14 @@ It will generate NUM_ANGLES^2 Model Images and save them into data/models/test/
 
 OVERLAY - Overlay object images with background
 ====================
-If you ran the blender script as stated above, the object images should be in the right structure
 
-Run this command:
-
-python overlay.py {blender_executable} {BKGD_FOLDER} {MODEL_FOLDER}
-
-Where blender_executable is the path to your blender executable
-BKGD_FOLDER is where your background images are located
-MODEL_FOLDER contains the .blend files of the models
-
-eg) python overlay.py blender.exe Background/ data/
-
-You can specify the amount of overlays per Model Image by changing 'num_overlays' in overlay.py
-This script will overwrite every Model Image in the object data folders.
+```python
+python overlay.py {blender.exe} {folder containing models}
+```
+This script will generate images from 'blenderscript.py' and then add backgrounds to those using images from ImageNet.
+Expects 'fall11_urls.txt' to be in the current directory. This file contains a list of url's to use as backgrounds for the blender generated images.
+It writes all of the images into './data/models/{Model_name}/' and deletes whatever was in these folders originally.
+For each model it is, currently set to generate images with the model in 15^2 different positions, with 10 unique backgrounds for each position. This amounts to 2250 images for each model.
 
 VIDEO SPLIT - Generate images from video
 ====================
