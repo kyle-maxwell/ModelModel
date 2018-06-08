@@ -83,7 +83,7 @@ def make_model(input_shape, output_shape):
     nn.summary()
 
     nn.compile(
-        optimizer=optimizer=Adam(lr=0.0001, momentum=0.9),
+        optimizer=Adam(lr=0.0001, momentum=0.9),
         loss='categorical_crossentropy',
         metrics=['accuracy']
     )
