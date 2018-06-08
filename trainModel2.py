@@ -9,7 +9,7 @@ def make_model(input_shape, output_shape):
 
     nn.add(layers.Conv2D(32,
         (3, 3),
-        activation=layer.LeakyReLU(0.005),
+        activation=layers.LeakyReLU(0.005),
         kernel_regularizer=regularizers.l2(.01),
         input_shape=input_shape,
         kernel_initializer="he_normal"
