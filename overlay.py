@@ -5,28 +5,37 @@ import sys
 from os.path import abspath, join
 import os
 from subprocess import run
+import urllib
+import requests
+import socket
 
 class Background:
-    def __init__(self, width, height, folder):
+    def __init__(self, width, height):
         self.seed = random.seed()
         self.w = width
         self.h = height
-        self.folder = folder
-        self.load_imgs()
+        with open('fall11_urls.txt', errors='ignore') as links:
+            self.raw_links = links.read().split()[0::2]
+        socket.setdefaulttimeout(3)
 
-    def load_imgs(self):
-        print("Loading background images")
-        files = os.listdir(self.folder)
-        self.images = []
-        for i, f in enumerate(files):
-            #image = bpy.data.images.load(abspath(join(self.folder, f)))
-            image = cv2.imread(abspath(join(self.folder, f)));
-            image = cv2.resize(image, (self.w, self.h))
-            self.images.append(image)
+    def load_img(self):
+        try:
+            data = urllib.request.urlopen(self.get_link()).read()
+            data = np.fromstring(data,np.uint8)
+            img = cv2.imdecode(data,cv2.IMREAD_COLOR)
+            if(img.shape == (374,500,3)):
+                print("Failed Flickr")
+                return self.load_img()
+            return cv2.resize(img, (self.w,self.h), interpolation=cv2.INTER_CUBIC)
+        except:
+            print('Download Fail')
+            return self.load_img()
 
-    def get_img(self):
-        n = random.randint(0, len(self.images) - 1)
-        return self.images[n]
+    def get_link(self):
+        n = random.randint(0, len(self.raw_links) - 1)
+        if '.gif' in self.raw_links[n]:
+            return self.get_link()
+        return self.raw_links[n]
 
 
 def overlay_img(im, bkgd, name):
@@ -42,7 +51,7 @@ def overlay_img(im, bkgd, name):
 
 
 def overlay_folder(w, h, im_folder, bkgd):
-    num_overlays = 6
+    num_overlays = 10
     im_files = os.listdir(abspath(im_folder))
     #Make 5 overlays for each image of the object
     count = 0
@@ -50,27 +59,27 @@ def overlay_folder(w, h, im_folder, bkgd):
         name = abspath(join(im_folder,f))
         im = cv2.imread(name, cv2.IMREAD_UNCHANGED) # To get alpha values
         for j in range(num_overlays - 1):
-            print("Image {}{}".format(j,i))
+            print("Image {}".format(count))
             new_name = abspath(join(im_folder,str(count)+f))
-            overlay_img(im, bkgd.get_img(), new_name)
+            overlay_img(im, bkgd.load_img(), new_name)
             count += 1
         print("Image {}{}".format(j,i))
-        overlay_img(im, bkgd.get_img(), name)
+        overlay_img(im, bkgd.load_img(), name)
 
-
+#python overlay.py {blender exe} {models folder}
+# saves your images to data/objects
 def main(argv):
     w = 256
     h = 256
     blender_exe = argv[1]
-    bkgd_folder = argv[2]
-    obj_folder = argv[3]
+    obj_folder = argv[2]
 
     for obj in os.listdir(obj_folder):
         proc = run([blender_exe, '-b', join(obj_folder, obj), '--python', 'blenderscript.py'])
         proc.check_returncode()
 
-    im_folder = 'data'
-    bkgd = Background(int(w), int(h), bkgd_folder)
+    im_folder = 'data/models/'
+    bkgd = Background(int(w), int(h))
     for fold in os.listdir(im_folder):
         print("Processing {}".format(fold)) 
         overlay_folder(w, h, join(im_folder, fold), bkgd)

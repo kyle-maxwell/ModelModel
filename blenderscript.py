@@ -28,7 +28,7 @@ def main(model_path):
 
     # Change this to change how many pictures you take
     # Number of pictures will be NUM_ANGLES^2
-    NUM_ANGLES = 2
+    NUM_ANGLES = 15
 
     # Get scene and set render resolution
     S = bpy.context.scene
@@ -40,7 +40,7 @@ def main(model_path):
 
     # Parent data folder
     model_name = os.path.splitext(os.path.basename(model_path))[0]
-    render_folder = abspath(join("data", model_name))
+    render_folder = abspath(join("data/models/", model_name))
     if not exists(render_folder):
         os.makedirs(render_folder)
 
