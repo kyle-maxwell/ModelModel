@@ -28,7 +28,7 @@ def main(model_path):
 
     # Change this to change how many pictures you take
     # Number of pictures will be NUM_ANGLES^2
-    NUM_ANGLES = 15
+    NUM_ANGLES = 4
 
     # Get scene and set render resolution
     S = bpy.context.scene
@@ -41,6 +41,7 @@ def main(model_path):
     # Parent data folder
     model_name = os.path.splitext(os.path.basename(model_path))[0]
     render_folder = abspath(join("data/train/", model_name))
+
     if not exists(render_folder):
         os.makedirs(render_folder)
 
@@ -68,6 +69,7 @@ def main(model_path):
     count = 0
 
     # Rotation around vertical axis (horizontal rotaton)
+    prev_location = mathutils.Vector([obj.location.x, obj.location.y, obj.location.z])
     for i in range(NUM_ANGLES):
         # Rotation around horizontal axis (vertical rotation)
         for j in range(int(-NUM_ANGLES/2)+1, int(NUM_ANGLES/2)+1):
@@ -77,12 +79,18 @@ def main(model_path):
             rot = i * rot_angle
             obj.rotation_euler.z = radians( rot )
 
+            rand_move = (4 * np.random.rand()) - 2
+            obj.location = prev_location + mathutils.Vector([0, rand_move, 0])
+
             print('Processing image {} with rot {} and vert {}'.format(count, rot, vert))
 
             file_name = "angle_{}_cam_{}.{}".format(rot, vert, S.render.file_extension)
 
             bpy.context.scene.render.filepath = join(render_folder, file_name)
             bpy.ops.render.render(write_still=True)
+
+            obj.location = prev_location
             count += 1
+
 
 main(argv[2])
