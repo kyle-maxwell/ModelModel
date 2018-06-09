@@ -30,7 +30,7 @@ def make_model(input_shape, output_shape):
     ))
     nn.add(layers.MaxPooling2D())
     
-    for i in range(0,2):
+    for i in range(0,3):
         nn.add(layers.Conv2D(16,
             (3,3),
             activation='relu',
@@ -81,7 +81,7 @@ def main():
         height_shift_range=0.4
     )
     train_generator = train_datagen.flow_from_directory(
-        'data/models',
+        'data/train',
         target_size = (IMAGE_SIZE,IMAGE_SIZE), #should already be this size, but we left it in to be safe
         batch_size = BATCH_SIZE,
         class_mode = 'categorical'
@@ -100,7 +100,6 @@ def main():
     # Checkpoint: save models that are improvements
     filepath = "weights/weights-{epoch:02d}-{val_acc:.4f}.h5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
-
     # Train Model
     input_shape = (IMAGE_SIZE, IMAGE_SIZE, 3) # 3 channels? or 4? alpha levels?
     # it is three for R G B ?

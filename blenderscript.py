@@ -40,7 +40,7 @@ def main(model_path):
 
     # Parent data folder
     model_name = os.path.splitext(os.path.basename(model_path))[0]
-    render_folder = abspath(join("data/models/", model_name))
+    render_folder = abspath(join("data/train/", model_name))
     if not exists(render_folder):
         os.makedirs(render_folder)
 

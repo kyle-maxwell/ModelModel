@@ -78,7 +78,7 @@ def main(argv):
         proc = run([blender_exe, '-b', join(obj_folder, obj), '--python', 'blenderscript.py'])
         proc.check_returncode()
 
-    im_folder = 'data/models/'
+    im_folder = 'data/train/'
     bkgd = Background(int(w), int(h))
     for fold in os.listdir(im_folder):
         print("Processing {}".format(fold)) 

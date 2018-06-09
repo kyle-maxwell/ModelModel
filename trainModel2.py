@@ -9,7 +9,7 @@ def make_model(input_shape, output_shape):
 
     nn.add(layers.Conv2D(32,
         (3, 3),
-        activation="relu",
+        activation="linear",
         kernel_regularizer=regularizers.l2(.01),
         input_shape=input_shape,
         kernel_initializer="he_normal"
@@ -19,32 +19,28 @@ def make_model(input_shape, output_shape):
 
     nn.add(layers.Conv2D(32,
         (3, 3),
-        activation="relu",
+        activation="linear",
         kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
     nn.add(layers.LeakyReLU(0.001))
 
-    nn.add(layers.Conv2D(32,
+    nn.add(layers.Conv2D(64,
         (3, 3),
-        activation="relu",
+        activation="linear",
         #kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
     nn.add(layers.LeakyReLU(0.001))
 
     nn.add(layers.BatchNormalization())
+    nn.add(layers.Dropout(.4))
     nn.add(layers.MaxPooling2D())
 
-
-
-
-
     # four, five, sixth layer
-
     nn.add(layers.Conv2D(64,
         (3, 3),
-        activation="relu",
+        activation="linear",
         kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     )) 
@@ -53,7 +49,7 @@ def make_model(input_shape, output_shape):
 
     nn.add(layers.Conv2D(64,
         (3, 3),
-        activation="relu",
+        activation="linear",
         kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
@@ -61,24 +57,20 @@ def make_model(input_shape, output_shape):
 
     nn.add(layers.Conv2D(64,
         (3, 3),
-        activation="relu",
+        activation="linear",
         #kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
     nn.add(layers.LeakyReLU(0.001))
 
     nn.add(layers.BatchNormalization()) 
+    nn.add(layers.Dropout(.4))
     nn.add(layers.MaxPooling2D())
 
-
-
-
-
     # seven, eight, nine, ten layer
-
     nn.add(layers.Conv2D(64,
-        (3, 3),
-        activation="relu",
+        (1, 1),
+        activation="linear",
         kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))  
@@ -86,16 +78,16 @@ def make_model(input_shape, output_shape):
     nn.add(layers.LeakyReLU(0.001))
 
     nn.add(layers.Conv2D(32,
-        (3,3),
-        activation="relu",
+        (1,1),
+        activation="linear",
         kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
     nn.add(layers.LeakyReLU(0.001))
 
     nn.add(layers.Conv2D(16,
-        (3,3),
-        activation="relu",
+        (1,1),
+        activation="linear",
         #kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
@@ -103,17 +95,14 @@ def make_model(input_shape, output_shape):
 
     nn.add(layers.Conv2D(16,
         (3,3),
-        activation="relu",
+        activation="linear",
         #kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
     nn.add(layers.LeakyReLU(0.001))
-
     nn.add(layers.BatchNormalization())
+    nn.add(layers.MaxPooling2D())
     nn.add(layers.Flatten())
-
-
-
 
     # eleventh layer
 
@@ -122,7 +111,7 @@ def make_model(input_shape, output_shape):
         kernel_regularizer=regularizers.l2(.01),
         kernel_initializer="he_normal"
     ))
-    #nn.add(layers.LeakyReLU(0.001))
+    nn.add(layers.Dropout(.3))
     nn.add(layers.Dense(output_shape, activation='softmax'))
 
     nn.summary()
