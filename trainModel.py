@@ -14,42 +14,40 @@ def make_model(input_shape, output_shape):
     nn.add(layers.BatchNormalization())
     nn.add(layers.MaxPooling2D())
 
-    # second layer
-
     nn.add(layers.Conv2D(64,
         (3, 3),
         activation='relu',
         kernel_regularizer=regularizers.l2(.01)
     ))
-    nn.add(layers.BatchNormalization())
 
-    nn.add(layers.Conv2D(128,
+    nn.add(layers.Conv2D(32,
+        (1,1),
+        activation='relu',
+    ))
+    nn.add(layers.Conv2D(16,
+        (1,1),
+        activation='relu',
+    ))
+    nn.add(layers.MaxPooling2D())
+    
+    for i in range(0,3):
+        nn.add(layers.Conv2D(16,
+            (3,3),
+            activation='relu',
+        ))
+    nn.add(layers.BatchNormalization())
+    nn.add(layers.MaxPooling2D())
+
+    nn.add(layers.Conv2D(16,
         (3, 3),
         activation='relu',
         kernel_regularizer=regularizers.l2(.01)
     ))
     nn.add(layers.BatchNormalization()) 
-    nn.add(layers.Conv2D(64,
-        (1, 1),
-        activation='relu',
-    ))
-    nn.add(layers.Conv2D(32,
-        (1,1),
-        activation='relu',
-    ))
-    nn.add(layers.Conv2D(32,
-        (3,3),
-        activation='relu',
-    ))
-    nn.add(layers.Conv2D(32,
-        (3,3),
-        activation='relu',
-        kernel_regularizer=regularizers.l2(.01)
-    ))
-    nn.add(layers.BatchNormalization())
- 
+    nn.add(layers.MaxPooling2D())
+
     nn.add(layers.Flatten())
-    nn.add(layers.Dense(32,
+    nn.add(layers.Dense(16,
         activation='relu',
         kernel_regularizer=regularizers.l2(.01)
     ))
@@ -75,15 +73,15 @@ def main():
     
     # Generator getting pictures from data/train, and augmenting them
     train_datagen = ImageDataGenerator(
-        zoom_range=.1,
+        zoom_range=.3,
         horizontal_flip=True,
         fill_mode='wrap',
-        rescale=1/255
-        width_shift_range=0.2,
-        height_shift_range=0.2,
+        rescale=1/255,
+        width_shift_range=0.4,
+        height_shift_range=0.4
     )
     train_generator = train_datagen.flow_from_directory(
-        'data/models',
+        'data/train',
         target_size = (IMAGE_SIZE,IMAGE_SIZE), #should already be this size, but we left it in to be safe
         batch_size = BATCH_SIZE,
         class_mode = 'categorical'
@@ -102,7 +100,6 @@ def main():
     # Checkpoint: save models that are improvements
     filepath = "weights/weights-{epoch:02d}-{val_acc:.4f}.h5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
-
     # Train Model
     input_shape = (IMAGE_SIZE, IMAGE_SIZE, 3) # 3 channels? or 4? alpha levels?
     # it is three for R G B ?

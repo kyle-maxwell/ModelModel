@@ -18,8 +18,7 @@ def main():
     x = GlobalAveragePooling2D()(x)
     x = Dense(32, activation='relu')(x) # Was 1024 when had 200 classes, 512 also
 
-
-    CATEGORIES = 2
+    CATEGORIES = 4
     predictions = Dense(CATEGORIES, activation='softmax')(x)
 
     model = Model(inputs=base_model.input, outputs=predictions)
@@ -47,7 +46,7 @@ def main():
     # we use SGD with a low learning rate
     from keras.optimizers import SGD, Adam, RMSprop
     #model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=["accuracy"])
-    model.compile(optimizer=Adam(lr=0.0001, momentum=0.9), loss = "categorical_crossentropy", metrics=["accuracy"])
+    model.compile(optimizer=Adam(lr=0.0001), loss = "categorical_crossentropy", metrics=["accuracy"])
     # we train our model again (this time fine-tuning the top 2 inception blocks
     # alongside the top Dense layers
     # model.fit_generator(...)
@@ -55,10 +54,9 @@ def main():
     train_model(model, 20, 30, 64)
 
 
-
 def train_model(model, EPOCHS, BATCH_PER_EPOCH, BATCH_SIZE):
     IMAGE_SIZE = 128
-    CATEGORIES = 2
+    CATEGORIES = 4
     
     # Generator getting pictures from data/train, and augmenting them
     train_datagen = ImageDataGenerator(
@@ -98,9 +96,6 @@ def train_model(model, EPOCHS, BATCH_PER_EPOCH, BATCH_SIZE):
         validation_data=validation_generator,
         epochs=EPOCHS
     ).history
-
-
-
 
 if __name__ == '__main__':
     main()
