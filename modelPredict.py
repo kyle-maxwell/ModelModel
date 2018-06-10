@@ -27,17 +27,26 @@ def get_generator(dir_name):
     )
     return val_generator
 
+def get_totals(data_labels,data_predictions):
+    predictions = np.array([0,0,0,0])
+    for prediction in data_predictions:
+        predictions[np.argmax(prediction)] += 1 
+    print(predictions)
+
 #python modelPredict.py model.h5 picture_dir
 def main():
     val_gen = get_generator(sys.argv[2])
     model = load_model(sys.argv[1])
+    model.summary()
     res = model.predict_generator(val_gen, verbose=1)
     print(val_gen.class_indices)
-    for (filename, prediction) in zip(val_gen.filenames, res):
+    get_totals(val_gen.classes,res)
+    for (filename, label, prediction) in zip(val_gen.filenames,val_gen.classes, res):
         image = cv2.imread(sys.argv[2] + filename, cv2.IMREAD_COLOR)
-        rs = cv2.resize(image, (500,500), interpolation=cv2.INTER_CUBIC)
+        rs = cv2.resize(image, (128,128), interpolation=cv2.INTER_CUBIC)
         cv2.imshow('Image',rs)
-        print(list(val_gen.class_indices)[np.argmax(prediction)])
+        print('label: {}'.format(list(val_gen.class_indices)[label]))
+        print('prediction: {}'.format(list(val_gen.class_indices)[np.argmax(prediction)]))
         print(np.around(prediction, decimals=3))
         cv2.waitKey(3000) # Image will show for 3s, or when you press a key
     cv2.destroyAllWindows()

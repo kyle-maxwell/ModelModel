@@ -25,7 +25,7 @@ def make_model(input_shape, output_shape):
     ))
     nn.add(layers.LeakyReLU(0.001))
 
-    nn.add(layers.Conv2D(64,
+    nn.add(layers.Conv2D(32,
         (3, 3),
         activation="linear",
         #kernel_regularizer=regularizers.l2(.01),
